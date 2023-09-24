@@ -1,0 +1,10 @@
+# configure SSH configuration file for the local ssh client
+
+Host *
+       IdentifyFile ~/.ssh/school
+       PasswordAuthentication no
+       SendEnv LANG LC_*
+       HashKnownHosts yes
+       GSSAPIAuthentication yes
+       HostName 35.175.64.78
+       User ubuntu

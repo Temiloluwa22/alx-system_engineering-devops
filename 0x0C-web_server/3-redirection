@@ -1,12 +1,33 @@
 #!/usr/bin/env bash
-# This script configures the Nginx server so that
-# /redirect_me is redirecting to another page
+# This script configures the Nginx server to redirect /redirect_me to a YouTube video.
 
+# Update package information
 sudo apt-get -y update
-sudo apt-get -y install nginx
-sudo chown -R "$USER":"$USER" /var/www
-echo "Hello World!" | sudo tee /var/www/html/index.nginx-debian.html
-sudo sed -i "48i\\\tif (\$request_filename ~ redirect_me){\n\t\t\
-rewrite ^ https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;\n\t}" /etc/nginx/sites-available/default
 
+# Install Nginx
+sudo apt-get -y install nginx
+
+# Change ownership of the web directory to your user
+sudo chown -R "$USER":"$USER" /var/www/html
+
+# Create an HTML file with the redirect message
+echo "<html><head><meta http-equiv='refresh' content='0;URL=https://www.youtube.com/watch?v=QH2-TGUlwu4'></head></html>" | sudo tee /var/www/html/redirect_me.html
+
+# Create a server block configuration for the redirect
+sudo bash -c 'cat <<EOF > /etc/nginx/sites-available/redirect_me
+server {
+    listen 80;
+    server_name 52.3.249.197; # Replace with your domain or server IP
+
+    location /redirect_me {
+        alias /var/www/html/redirect_me.html;
+    }
+}
+EOF'
+
+# Enable the new server block
+sudo ln -s /etc/nginx/sites-available/redirect_me /etc/nginx/sites-enabled/
+
+# Test Nginx configuration and restart
+sudo nginx -t
 sudo service nginx restart
